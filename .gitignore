@@ -14,3 +14,5 @@ hs_err_pid*
 /constantes.cfg
 /SmartUniNfeRest.iml
 /target
+/archived
+/*.log

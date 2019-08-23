@@ -13,10 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api")
@@ -154,5 +154,79 @@ public class ApiRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(texto));
         }
     }
+
+    @RequestMapping(value = "/uniNfeEmpresa", method = RequestMethod.GET)
+    public ResponseEntity<Resposta> uniNfeEmpresa() {
+        try {
+            String caminhoArquivoUniNfeEmpresa = Main.DIRETORIO_BASE_UNINFE.concat("UniNfeEmpresa.xml");
+            String arquivoUniNfeEmpresa = FileUtils.readFileToString(new File(caminhoArquivoUniNfeEmpresa), StandardCharsets.UTF_8);
+            log.info(arquivoUniNfeEmpresa);
+            return ResponseEntity.status(HttpStatus.OK).body(new Resposta(arquivoUniNfeEmpresa));
+        } catch (IOException e) {
+            String texto = e.getMessage();
+            log.error(texto);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(texto));
+        }
+    }
+
+    @RequestMapping(value = "/uniNfeConfig/{cnpj}/{servico}", method = RequestMethod.GET)
+    public ResponseEntity<Resposta> uniNfeConfig(@PathVariable String cnpj, @PathVariable String servico) {
+        try {
+            String caminhoArquivoUniNfeConfig = Main.DIRETORIO_BASE_UNINFE.concat(cnpj).concat("/").concat(servico).concat("/UniNfeConfig.xml");
+            String arquivoUniNfeConfig = FileUtils.readFileToString(new File(caminhoArquivoUniNfeConfig), StandardCharsets.UTF_8);
+            log.info(arquivoUniNfeConfig);
+            return ResponseEntity.status(HttpStatus.OK).body(new Resposta(arquivoUniNfeConfig));
+        } catch (IOException e) {
+            String texto = e.getMessage();
+            log.error(texto);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(texto));
+        }
+    }
+
+    @RequestMapping(value = "/servivo/{acao}", method = RequestMethod.GET)
+    public ResponseEntity<Resposta> servivo(@PathVariable String acao) throws IOException {
+        String retorno;
+        switch (acao) {
+            case "iniciar":
+                Runtime runtimeStart = Runtime.getRuntime();
+                String[] scriptStart = {"cmd.exe", "/c", "sc", "start", "UniNFeServico"};
+                Process processStart = runtimeStart.exec(scriptStart);
+                StringBuilder stringBuilderStart = new StringBuilder();
+                BufferedReader lineReaderStart = new BufferedReader(new InputStreamReader(processStart.getInputStream()));
+                lineReaderStart.lines().forEach(linha -> stringBuilderStart.append(linha).append(System.getProperty("line.separator")));
+                BufferedReader errorReaderStart = new BufferedReader(new InputStreamReader(processStart.getErrorStream()));
+                errorReaderStart.lines().forEach(linha -> stringBuilderStart.append(linha).append(System.getProperty("line.separator")));
+                retorno = stringBuilderStart.toString();
+                break;
+            case "parar":
+                Runtime runtimeStop = Runtime.getRuntime();
+                String[] scriptStop = {"cmd.exe", "/c", "sc", "stop", "UniNFeServico"};
+                Process processStop = runtimeStop.exec(scriptStop);
+                StringBuilder stringBuilderStop = new StringBuilder();
+                BufferedReader lineReaderStop = new BufferedReader(new InputStreamReader(processStop.getInputStream()));
+                lineReaderStop.lines().forEach(linha -> stringBuilderStop.append(linha).append(System.getProperty("line.separator")));
+                BufferedReader errorReaderStop = new BufferedReader(new InputStreamReader(processStop.getErrorStream()));
+                errorReaderStop.lines().forEach(linha -> stringBuilderStop.append(linha).append(System.getProperty("line.separator")));
+                retorno = stringBuilderStop.toString();
+                break;
+            case "status":
+                Runtime runtimeStatus = Runtime.getRuntime();
+                String[] scriptStatus = {"cmd.exe", "/c", "sc", "query", "UniNFeServico", "|", "find", "/C", "\"RUNNING\""};
+                Process processStatus = runtimeStatus.exec(scriptStatus);
+                StringBuilder stringBuilderStatus = new StringBuilder();
+                BufferedReader lineReaderStatus = new BufferedReader(new InputStreamReader(processStatus.getInputStream()));
+                lineReaderStatus.lines().forEach(linha -> stringBuilderStatus.append(linha).append(System.getProperty("line.separator")));
+                BufferedReader errorReaderStatus = new BufferedReader(new InputStreamReader(processStatus.getErrorStream()));
+                errorReaderStatus.lines().forEach(linha -> stringBuilderStatus.append(linha).append(System.getProperty("line.separator")));
+                retorno = stringBuilderStatus.toString();
+                break;
+            default:
+                retorno = "Ação não identificada!";
+                break;
+        }
+        log.error(retorno);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(retorno));
+    }
+
 
 }
