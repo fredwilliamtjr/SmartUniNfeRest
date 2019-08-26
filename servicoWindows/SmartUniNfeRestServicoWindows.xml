@@ -1,0 +1,9 @@
+<service>
+      <id>UniNfeRestServico</id>
+      <name>UniNfeRestServico</name>
+      <description>Serviço do SmartUniNfeRest</description>
+      <env name="HOME" value="C:\SmartUniNfeRest"/>
+      <executable>java</executable>
+      <arguments>-Xrs -Xmx256m -jar "C:\SmartUniNfeRest\SmartUniNfeRest.jar"</arguments>
+      <logmode>rotate</logmode>
+    </service>

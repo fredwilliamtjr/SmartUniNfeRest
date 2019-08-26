@@ -1,0 +1,2 @@
+SmartUniNfeRestServicoWindows.exe uninstall service
+pause

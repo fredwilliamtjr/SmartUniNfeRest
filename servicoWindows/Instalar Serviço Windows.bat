@@ -1,0 +1,2 @@
+SmartUniNfeRestServicoWindows.exe install service
+pause
