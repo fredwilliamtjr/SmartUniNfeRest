@@ -32,6 +32,13 @@ public class ApiRestController {
         return new Resposta(texto, HttpStatus.OK.value());
     }
 
+    @RequestMapping("/teste")
+    public ResponseEntity<Resposta> teste() {
+        String texto = Main.NOME.concat(" - ").concat(Main.DATA_VERSAO).concat(" - Executando!");
+        log.info(texto);
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(new Resposta(texto, HttpStatus.GATEWAY_TIMEOUT.value()));
+    }
+
     @RequestMapping(value = "/gravarCertficado/{cnpj}/{senha}", method = RequestMethod.POST)
     public ResponseEntity<Resposta> gravarCertficado(@RequestBody byte[] pfx, @PathVariable String cnpj, @PathVariable String senha) {
         try {
@@ -44,7 +51,7 @@ public class ApiRestController {
             Certificado certificadoPfxBytes = CertificadoService.certificadoPfxBytes(pfx, senha);
             String cnpjCpf = certificadoPfxBytes.getCnpjCpf();
             if (!cnpjCpf.equals(cnpj)) {
-                String texto = "CNPJ informado não é o mesmo do certificado enviado!";
+                String texto = HttpStatus.CONFLICT.toString().concat(" - CNPJ informado não é o mesmo do certificado enviado!");
                 log.error(texto);
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new Resposta(texto, HttpStatus.CONFLICT.value()));
             }
@@ -85,9 +92,9 @@ public class ApiRestController {
             }
             //ABORTA CADO TENHA PASSADO DO NUMERO MAXIMO DE TENTATIVAS DE AGUARDAR OS ARQUIVOS DE RETORNO DE ENVIO
             if (quantidadeTentativasEnvio >= Main.NUMERO_MAXIMO_TENTATIVAS_RETORNO_UNINFE) {
-                String texto = "Alcançou o número máximo de tentativas na espera de retorno do UniNfe!";
-                log.error(texto);
-                return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(new Resposta(texto, HttpStatus.REQUEST_TIMEOUT.value()));
+                String texto = HttpStatus.GATEWAY_TIMEOUT.toString().concat(" - Alcançou o número máximo de tentativas na espera de retorno do UniNfe!");
+                log.error(HttpStatus.GATEWAY_TIMEOUT.toString().concat(" - ").concat(texto));
+                return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(new Resposta(texto, HttpStatus.GATEWAY_TIMEOUT.value()));
             }
             if (new File(caminhoArquivoSucesso).exists()) {
                 String arquivoSucesso = FileUtils.readFileToString(new File(caminhoArquivoSucesso), StandardCharsets.UTF_8);
@@ -136,7 +143,7 @@ public class ApiRestController {
             if (quantidadeTentativasEnvio >= Main.NUMERO_MAXIMO_TENTATIVAS_RETORNO_UNINFE) {
                 String texto = "Alcançou o número máximo de tentativas na espera de retorno do UniNfe!";
                 log.error(texto);
-                return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(new Resposta(texto, HttpStatus.REQUEST_TIMEOUT.value()));
+                return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(new Resposta(texto, HttpStatus.GATEWAY_TIMEOUT.value()));
             }
             if (new File(caminhoArquivoRetornoSucessoEmpresa).exists()) {
                 String arquivoSucesso = FileUtils.readFileToString(new File(caminhoArquivoRetornoSucessoEmpresa), StandardCharsets.UTF_8);
