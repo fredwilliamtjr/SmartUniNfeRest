@@ -2,20 +2,31 @@ package br.com.smartfull.rest;
 
 public class Resposta {
 
-    private Integer httpStatusCode;
+    private String httpStatusCode;
     private String conteudo;
 
-    public Resposta(String conteudo, Integer httpStatusCode) {
-        this.conteudo = conteudo;
-        this.httpStatusCode = httpStatusCode;
+    public Resposta() {
     }
 
-    public Integer getHttpStatusCode() {
+    public Resposta(String httpStatusCode, String conteudo) {
+        this.httpStatusCode = httpStatusCode;
+        this.conteudo = conteudo;
+    }
+
+    public String getHttpStatusCode() {
         return httpStatusCode;
+    }
+
+    public void setHttpStatusCode(String httpStatusCode) {
+        this.httpStatusCode = httpStatusCode;
     }
 
     public String getConteudo() {
         return conteudo;
+    }
+
+    public void setConteudo(String conteudo) {
+        this.conteudo = conteudo;
     }
 
     @Override
