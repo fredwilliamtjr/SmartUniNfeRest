@@ -225,7 +225,7 @@ public class ApiRestController {
                 break;
         }
         log.error(retorno);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(retorno));
+        return ResponseEntity.status(HttpStatus.OK).body(new Resposta(retorno));
     }
 
 
