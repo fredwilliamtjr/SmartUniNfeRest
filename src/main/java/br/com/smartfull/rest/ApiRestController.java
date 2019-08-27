@@ -28,15 +28,8 @@ public class ApiRestController {
     @RequestMapping("")
     public ResponseEntity<Resposta> raiz() {
         String texto = Main.NOME.concat(" - ").concat(Main.DATA_VERSAO).concat(" - Executando!");
-        log.info(texto);
+        log.info(texto.concat(" - ").concat(HttpStatus.OK.toString()));
         return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), texto));
-    }
-
-    @RequestMapping("/teste")
-    public ResponseEntity<Resposta> teste() {
-        String texto = Main.NOME.concat(" - ").concat(Main.DATA_VERSAO).concat(" - Executando!");
-        log.info(texto);
-        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(new Resposta(String.valueOf(HttpStatus.GATEWAY_TIMEOUT.value()), texto));
     }
 
     @RequestMapping(value = "/gravarCertficado/{cnpj}/{senha}", method = RequestMethod.POST)
@@ -45,32 +38,32 @@ public class ApiRestController {
             cnpj = CNP.removeMascara(cnpj);
             if (!CNP.isValidCNPJ(cnpj)) {
                 String texto = "CNPJ ivalido!";
-                log.error(texto);
+                log.error(texto.concat(" - ").concat(HttpStatus.CONFLICT.toString()));
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new Resposta(String.valueOf(HttpStatus.CONFLICT.value()), texto));
             }
             Certificado certificadoPfxBytes = CertificadoService.certificadoPfxBytes(pfx, senha);
             String cnpjCpf = certificadoPfxBytes.getCnpjCpf();
             if (!cnpjCpf.equals(cnpj)) {
-                String texto = HttpStatus.CONFLICT.toString().concat(" - CNPJ informado não é o mesmo do certificado enviado!");
-                log.error(texto);
+                String texto = " - CNPJ informado não é o mesmo do certificado enviado!";
+                log.error(texto.concat(" - ").concat(HttpStatus.CONFLICT.toString()));
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new Resposta(String.valueOf(HttpStatus.CONFLICT.value()), texto));
             }
             if (!certificadoPfxBytes.isValido()) {
                 String texto = "Certifixado expirado!";
-                log.error(texto);
+                log.error(texto.concat(" - ").concat(HttpStatus.CONFLICT.toString()));
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new Resposta(String.valueOf(HttpStatus.CONFLICT.value()), texto));
             }
             String caminhoCertificado = Main.DIRETORIO_BASE_UNINFE.concat(cnpj).concat("/certificado-").concat(cnpj).concat("-").concat(senha).concat(".pfx");
             FileUtils.writeByteArrayToFile(new File(caminhoCertificado), pfx, false);
-            log.info(caminhoCertificado);
+            log.info(caminhoCertificado.concat(" - ").concat(HttpStatus.OK.toString()));
             return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), caminhoCertificado));
         } catch (CertificadoException e) {
             String texto = "Erro ao ler certificado enviado : " + e.getMessage();
-            log.error(texto);
+            log.error(texto.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), texto));
         } catch (IOException e) {
             String texto = "Erro ao gravar certificado enviado : " + e.getMessage();
-            log.error(texto);
+            log.error(texto.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), texto));
         }
     }
@@ -79,9 +72,9 @@ public class ApiRestController {
     public ResponseEntity<Resposta> gravarArquivoGeral(@RequestBody String arquivo, @PathVariable String nomeArquivoEnviado, @PathVariable String nomeArquivoRetornoSucesso, @PathVariable String nomeArquivoRetornoErro) {
         try {
             String caminhoArquivoEnvio = Main.DIRETORIO_GERAL_UNINFE.concat(nomeArquivoEnviado);
-            FileUtils.write(new File(caminhoArquivoEnvio), arquivo, StandardCharsets.UTF_8, false);
             String caminhoArquivoSucesso = Main.DIRETORIO_GERAL_RETORNO_UNINFE.concat(nomeArquivoRetornoSucesso);
             String caminhoArquivoErro = Main.DIRETORIO_GERAL_RETORNO_UNINFE.concat(nomeArquivoRetornoErro);
+            FileUtils.write(new File(caminhoArquivoEnvio), arquivo, StandardCharsets.UTF_8, false);
             //AGUARDAR UM DOS ARQUIVOS DE RETORNO DO ENVIO
             int quantidadeTentativasEnvio = 1;
             while (!new File(caminhoArquivoSucesso).exists() && !new File(caminhoArquivoErro).exists() && quantidadeTentativasEnvio <= Main.NUMERO_MAXIMO_TENTATIVAS_RETORNO_UNINFE) {
@@ -92,24 +85,24 @@ public class ApiRestController {
             }
             //ABORTA CADO TENHA PASSADO DO NUMERO MAXIMO DE TENTATIVAS DE AGUARDAR OS ARQUIVOS DE RETORNO DE ENVIO
             if (quantidadeTentativasEnvio >= Main.NUMERO_MAXIMO_TENTATIVAS_RETORNO_UNINFE) {
-                String texto = HttpStatus.GATEWAY_TIMEOUT.toString().concat(" - Alcançou o número máximo de tentativas na espera de retorno do UniNfe!");
-                log.error(HttpStatus.GATEWAY_TIMEOUT.toString().concat(" - ").concat(texto));
+                String texto = "Alcançou o número máximo de tentativas na espera de retorno da ".concat(Main.NOME).concat("!");
+                log.error(texto.concat(" - ").concat(HttpStatus.GATEWAY_TIMEOUT.toString()));
                 return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(new Resposta(String.valueOf(HttpStatus.GATEWAY_TIMEOUT.value()), texto));
             }
             if (new File(caminhoArquivoSucesso).exists()) {
                 String arquivoSucesso = FileUtils.readFileToString(new File(caminhoArquivoSucesso), StandardCharsets.UTF_8);
                 boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoSucesso));
-                log.info(arquivoSucesso);
+                log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.OK.toString()));
                 return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoSucesso));
             } else {
                 String arquivoErro = FileUtils.readFileToString(new File(caminhoArquivoErro), StandardCharsets.UTF_8);
                 boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoErro));
-                log.error(arquivoErro);
+                log.error(arquivoErro.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), arquivoErro));
             }
         } catch (IOException | InterruptedException e) {
             String texto = "Erro ao gravar arquivo enviado : " + e.getMessage();
-            log.error(texto);
+            log.error(texto.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), texto));
         }
     }
@@ -120,7 +113,7 @@ public class ApiRestController {
             cnpj = CNP.removeMascara(cnpj);
             if (!CNP.isValidCNPJ(cnpj)) {
                 String texto = "CNPJ ivalido!";
-                log.error(texto);
+                log.error(texto.concat(" - ").concat(HttpStatus.CONFLICT.toString()));
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new Resposta(String.valueOf(HttpStatus.CONFLICT.value()), texto));
             }
             String caminhoDiretorioBaseEmpresa = Main.DIRETORIO_BASE_UNINFE.concat(cnpj).concat("/");
@@ -141,24 +134,24 @@ public class ApiRestController {
             }
             //ABORTA CADO TENHA PASSADO DO NUMERO MAXIMO DE TENTATIVAS DE AGUARDAR OS ARQUIVOS DE RETORNO DE ENVIO
             if (quantidadeTentativasEnvio >= Main.NUMERO_MAXIMO_TENTATIVAS_RETORNO_UNINFE) {
-                String texto = "Alcançou o número máximo de tentativas na espera de retorno do UniNfe!";
-                log.error(texto);
+                String texto = "Alcançou o número máximo de tentativas na espera de retorno da ".concat(Main.NOME).concat("!");
+                log.error(texto.concat(" - ").concat(HttpStatus.GATEWAY_TIMEOUT.toString()));
                 return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(new Resposta(String.valueOf(HttpStatus.GATEWAY_TIMEOUT.value()), texto));
             }
             if (new File(caminhoArquivoRetornoSucessoEmpresa).exists()) {
                 String arquivoSucesso = FileUtils.readFileToString(new File(caminhoArquivoRetornoSucessoEmpresa), StandardCharsets.UTF_8);
                 boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoSucessoEmpresa));
-                log.info(arquivoSucesso);
+                log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.OK.toString()));
                 return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoSucesso));
             } else {
                 String arquivoErro = FileUtils.readFileToString(new File(caminhoArquivoRetornoErroEmpresa), StandardCharsets.UTF_8);
                 boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoErroEmpresa));
-                log.error(arquivoErro);
+                log.error(arquivoErro.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), arquivoErro));
             }
         } catch (IOException | InterruptedException e) {
             String texto = "Erro ao gravar arquivo enviado : " + e.getMessage();
-            log.error(texto);
+            log.error(texto.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), texto));
         }
     }
@@ -168,11 +161,11 @@ public class ApiRestController {
         try {
             String caminhoArquivoUniNfeEmpresa = Main.DIRETORIO_BASE_UNINFE.concat("UniNfeEmpresa.xml");
             String arquivoUniNfeEmpresa = FileUtils.readFileToString(new File(caminhoArquivoUniNfeEmpresa), StandardCharsets.UTF_8);
-            log.info(arquivoUniNfeEmpresa);
+            log.info(arquivoUniNfeEmpresa.concat(" - ").concat(HttpStatus.OK.toString()));
             return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoUniNfeEmpresa));
         } catch (IOException e) {
             String texto = e.getMessage();
-            log.error(texto);
+            log.error(texto.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), texto));
         }
     }
@@ -182,11 +175,11 @@ public class ApiRestController {
         try {
             String caminhoArquivoUniNfeConfig = Main.DIRETORIO_BASE_UNINFE.concat(cnpj).concat("/").concat(servico).concat("/UniNfeConfig.xml");
             String arquivoUniNfeConfig = FileUtils.readFileToString(new File(caminhoArquivoUniNfeConfig), StandardCharsets.UTF_8);
-            log.info(arquivoUniNfeConfig);
+            log.info(arquivoUniNfeConfig.concat(" - ").concat(HttpStatus.OK.toString()));
             return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoUniNfeConfig));
         } catch (IOException e) {
             String texto = e.getMessage();
-            log.error(texto);
+            log.error(texto.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), texto));
         }
     }
@@ -232,7 +225,7 @@ public class ApiRestController {
                 retorno = "Ação não identificada!";
                 break;
         }
-        log.error(retorno);
+        log.error(retorno.concat(" - ").concat(HttpStatus.OK.toString()));
         return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), retorno));
     }
 
