@@ -57,8 +57,8 @@ public class Main extends Application {
             try {
                 List<String> readLines = FileUtils.readLines(new File("constantes.cfg"), StandardCharsets.UTF_8);
                 if (!readLines.isEmpty()) {
-                    NOME = readLines.get(0);
-                    DATA_VERSAO = readLines.get(1);
+                    //NOME = readLines.get(0);
+                    //DATA_VERSAO = readLines.get(1);
                     USUARIO_REST = readLines.get(2);
                     SENHA_REST = readLines.get(3);
                     DIRETORIO_BASE_UNINFE = readLines.get(4);
