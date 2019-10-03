@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
@@ -91,9 +92,15 @@ public class ApiRestController {
             }
             if (new File(caminhoArquivoSucesso).exists()) {
                 String arquivoSucesso = FileUtils.readFileToString(new File(caminhoArquivoSucesso), StandardCharsets.UTF_8);
-                boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoSucesso));
-                log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.OK.toString()));
-                return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoSucesso));
+                if (!StringUtils.isEmpty(arquivoSucesso)) {
+                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoSucesso));
+                    log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.OK.toString()));
+                    return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoSucesso));
+                }else {
+                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoSucesso));
+                    log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), "WebService da prefeitura instável, aguardar alguns minutos!"));
+                }
             } else {
                 String arquivoErro = FileUtils.readFileToString(new File(caminhoArquivoErro), StandardCharsets.UTF_8);
                 boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoErro));
@@ -140,9 +147,15 @@ public class ApiRestController {
             }
             if (new File(caminhoArquivoRetornoSucessoEmpresa).exists()) {
                 String arquivoSucesso = FileUtils.readFileToString(new File(caminhoArquivoRetornoSucessoEmpresa), StandardCharsets.UTF_8);
-                boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoSucessoEmpresa));
-                log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.OK.toString()));
-                return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoSucesso));
+                if (!StringUtils.isEmpty(arquivoSucesso)) {
+                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoSucessoEmpresa));
+                    log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.OK.toString()));
+                    return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoSucesso));
+                }else {
+                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoSucessoEmpresa));
+                    log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), "WebService da prefeitura instável, aguardar alguns minutos!"));
+                }
             } else {
                 String arquivoErro = FileUtils.readFileToString(new File(caminhoArquivoRetornoErroEmpresa), StandardCharsets.UTF_8);
                 boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoErroEmpresa));
