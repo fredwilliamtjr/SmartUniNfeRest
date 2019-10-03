@@ -35,7 +35,7 @@ public class Main extends Application {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static String NOME = "Smart UniNfe Rest";
-    public static String DATA_VERSAO = LocalDateTime.of(2019, Month.AUGUST, 20, 13, 10, 0).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+    public static String DATA_VERSAO = LocalDateTime.of(2019, Month.OCTOBER, 3, 16, 30, 0).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     public static String USUARIO_REST = "123";
     public static String SENHA_REST = "123";
     public static String DIRETORIO_BASE_UNINFE = "C:/Unimake/UniNFe/";
