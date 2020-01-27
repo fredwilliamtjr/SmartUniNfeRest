@@ -28,6 +28,7 @@ public class ApiRestController {
 
     @RequestMapping("")
     public ResponseEntity<Resposta> raiz() {
+        log.info("raiz()");
         String texto = Main.NOME.concat(" - ").concat(Main.DATA_VERSAO).concat(" - Executando!");
         log.info(texto.concat(" - ").concat(HttpStatus.OK.toString()));
         return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), texto));
@@ -35,6 +36,8 @@ public class ApiRestController {
 
     @RequestMapping(value = "/gravarCertficado/{cnpj}/{senha}", method = RequestMethod.POST)
     public ResponseEntity<Resposta> gravarCertficado(@RequestBody byte[] pfx, @PathVariable String cnpj, @PathVariable String senha) {
+        log.info("gravarCertficado() : " + cnpj + ", " + senha);
+
         try {
             cnpj = CNP.removeMascara(cnpj);
             if (!CNP.isValidCNPJ(cnpj)) {
@@ -71,6 +74,8 @@ public class ApiRestController {
 
     @RequestMapping(value = "/gravarArquivoGeral/{nomeArquivoEnviado}/{nomeArquivoRetornoSucesso}/{nomeArquivoRetornoErro}", method = RequestMethod.POST)
     public ResponseEntity<Resposta> gravarArquivoGeral(@RequestBody String arquivo, @PathVariable String nomeArquivoEnviado, @PathVariable String nomeArquivoRetornoSucesso, @PathVariable String nomeArquivoRetornoErro) {
+        log.info("gravarArquivoGeral() : " + nomeArquivoEnviado);
+
         try {
             String caminhoArquivoEnvio = Main.DIRETORIO_GERAL_UNINFE.concat(nomeArquivoEnviado);
             String caminhoArquivoSucesso = Main.DIRETORIO_GERAL_RETORNO_UNINFE.concat(nomeArquivoRetornoSucesso);
@@ -116,6 +121,8 @@ public class ApiRestController {
 
     @RequestMapping(value = "/gravarArquivoEmpresa/{cnpj}/{servico}/{nomeArquivoEnviado}/{nomeArquivoRetornoSucesso}/{nomeArquivoRetornoErro}", method = RequestMethod.POST)
     public ResponseEntity<Resposta> gravarArquivoEmpresa(@RequestBody String arquivo, @PathVariable String cnpj, @PathVariable String servico, @PathVariable String nomeArquivoEnviado, @PathVariable String nomeArquivoRetornoSucesso, @PathVariable String nomeArquivoRetornoErro) {
+        log.info("gravarArquivoEmpresa() : " + cnpj + ", " + nomeArquivoEnviado);
+
         try {
             cnpj = CNP.removeMascara(cnpj);
             if (!CNP.isValidCNPJ(cnpj)) {
@@ -171,6 +178,8 @@ public class ApiRestController {
 
     @RequestMapping(value = "/uniNfeEmpresa", method = RequestMethod.GET)
     public ResponseEntity<Resposta> uniNfeEmpresa() {
+
+        log.info("uniNfeEmpresa()");
         try {
             String caminhoArquivoUniNfeEmpresa = Main.DIRETORIO_BASE_UNINFE.concat("UniNfeEmpresa.xml");
             String arquivoUniNfeEmpresa = FileUtils.readFileToString(new File(caminhoArquivoUniNfeEmpresa), StandardCharsets.UTF_8);
@@ -185,6 +194,8 @@ public class ApiRestController {
 
     @RequestMapping(value = "/uniNfeConfig/{cnpj}/{servico}", method = RequestMethod.GET)
     public ResponseEntity<Resposta> uniNfeConfig(@PathVariable String cnpj, @PathVariable String servico) {
+        log.info("uniNfeConfig() : " + cnpj + ", " + servico);
+
         try {
             String caminhoArquivoUniNfeConfig = Main.DIRETORIO_BASE_UNINFE.concat(cnpj).concat("/").concat(servico).concat("/UniNfeConfig.xml");
             String arquivoUniNfeConfig = FileUtils.readFileToString(new File(caminhoArquivoUniNfeConfig), StandardCharsets.UTF_8);
@@ -199,6 +210,8 @@ public class ApiRestController {
 
     @RequestMapping(value = "/servivo/{acao}", method = RequestMethod.GET)
     public ResponseEntity<Resposta> servivo(@PathVariable String acao) throws IOException {
+        log.info("servivo() : " + acao);
+
         String retorno;
         switch (acao) {
             case "iniciar":
