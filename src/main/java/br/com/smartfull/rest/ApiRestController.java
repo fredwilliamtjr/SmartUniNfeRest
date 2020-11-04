@@ -53,7 +53,7 @@ public class ApiRestController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new Resposta(String.valueOf(HttpStatus.CONFLICT.value()), texto));
             }
             if (!certificadoPfxBytes.isValido()) {
-                String texto = "Certifixado expirado!";
+                String texto = "Certificado expirado!";
                 log.error(texto.concat(" - ").concat(HttpStatus.CONFLICT.toString()));
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new Resposta(String.valueOf(HttpStatus.CONFLICT.value()), texto));
             }
@@ -74,7 +74,7 @@ public class ApiRestController {
 
     @RequestMapping(value = "/gravarArquivoGeral/{nomeArquivoEnviado}/{nomeArquivoRetornoSucesso}/{nomeArquivoRetornoErro}", method = RequestMethod.POST)
     public ResponseEntity<Resposta> gravarArquivoGeral(@RequestBody String arquivo, @PathVariable String nomeArquivoEnviado, @PathVariable String nomeArquivoRetornoSucesso, @PathVariable String nomeArquivoRetornoErro) {
-        log.info("gravarArquivoGeral() : " + nomeArquivoEnviado);
+        log.info("gravarArquivoGeral() : " + nomeArquivoEnviado + ", " + arquivo);
 
         try {
             String caminhoArquivoEnvio = Main.DIRETORIO_GERAL_UNINFE.concat(nomeArquivoEnviado);
@@ -98,17 +98,23 @@ public class ApiRestController {
             if (new File(caminhoArquivoSucesso).exists()) {
                 String arquivoSucesso = FileUtils.readFileToString(new File(caminhoArquivoSucesso), StandardCharsets.UTF_8);
                 if (!StringUtils.isEmpty(arquivoSucesso)) {
-                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoSucesso));
+                    if (!new File("delete.off").exists()) {
+                        boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoSucesso));
+                    }
                     log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.OK.toString()));
                     return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoSucesso));
-                }else {
-                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoSucesso));
+                } else {
+                    if (!new File("delete.off").exists()) {
+                        boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoSucesso));
+                    }
                     log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), "WebService da prefeitura instável, aguardar alguns minutos!"));
                 }
             } else {
                 String arquivoErro = FileUtils.readFileToString(new File(caminhoArquivoErro), StandardCharsets.UTF_8);
-                boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoErro));
+                if (!new File("delete.off").exists()) {
+                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoErro));
+                }
                 log.error(arquivoErro.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), arquivoErro));
             }
@@ -121,7 +127,7 @@ public class ApiRestController {
 
     @RequestMapping(value = "/gravarArquivoEmpresa/{cnpj}/{servico}/{nomeArquivoEnviado}/{nomeArquivoRetornoSucesso}/{nomeArquivoRetornoErro}", method = RequestMethod.POST)
     public ResponseEntity<Resposta> gravarArquivoEmpresa(@RequestBody String arquivo, @PathVariable String cnpj, @PathVariable String servico, @PathVariable String nomeArquivoEnviado, @PathVariable String nomeArquivoRetornoSucesso, @PathVariable String nomeArquivoRetornoErro) {
-        log.info("gravarArquivoEmpresa() : " + cnpj + ", " + nomeArquivoEnviado);
+        log.info("gravarArquivoEmpresa() : " + cnpj + ", " + nomeArquivoEnviado + ", " + arquivo);
 
         try {
             cnpj = CNP.removeMascara(cnpj);
@@ -155,17 +161,23 @@ public class ApiRestController {
             if (new File(caminhoArquivoRetornoSucessoEmpresa).exists()) {
                 String arquivoSucesso = FileUtils.readFileToString(new File(caminhoArquivoRetornoSucessoEmpresa), StandardCharsets.UTF_8);
                 if (!StringUtils.isEmpty(arquivoSucesso)) {
-                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoSucessoEmpresa));
+                    if (!new File("delete.off").exists()) {
+                        boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoSucessoEmpresa));
+                    }
                     log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.OK.toString()));
                     return ResponseEntity.status(HttpStatus.OK).body(new Resposta(String.valueOf(HttpStatus.OK.value()), arquivoSucesso));
-                }else {
-                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoSucessoEmpresa));
+                } else {
+                    if (!new File("delete.off").exists()) {
+                        boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoSucessoEmpresa));
+                    }
                     log.info(arquivoSucesso.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), "WebService da prefeitura instável, aguardar alguns minutos!"));
                 }
             } else {
                 String arquivoErro = FileUtils.readFileToString(new File(caminhoArquivoRetornoErroEmpresa), StandardCharsets.UTF_8);
-                boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoErroEmpresa));
+                if (!new File("delete.off").exists()) {
+                    boolean deleteQuietly = FileUtils.deleteQuietly(new File(caminhoArquivoRetornoErroEmpresa));
+                }
                 log.error(arquivoErro.concat(" - ").concat(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Resposta(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), arquivoErro));
             }
